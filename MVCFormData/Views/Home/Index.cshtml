@@ -1,0 +1,104 @@
+﻿@model IEnumerable<MVCFormData.Models.Post>
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "/Home/get_post",
+            dataType: 'json',
+            success: function (resp) {
+                for (i = resp.length - 1; i >= 0; i--) {
+                    if (resp[i].PostType == "news") {
+                        var nid = resp[i].PostId;
+                        $("#nimg").attr("href", "/Posts/post_view/" + nid);
+                        $("#nbd").attr("href", "/Posts/post_view/" + nid)
+                        var nn = resp[i].PostTitle;
+                        var nc = resp[i].PostContent;
+                        var is = resp[i].PostImage;
+                        nc = nc.replace(/\n/g, "<br/>");
+                        nc = nc.substr(0, 500);
+                        nc = nc + "...";
+                        $("#news_name").html(nn);
+                        $("#img_source").attr("src", is);
+                        $("#news_content").html(nc);
+                        break;
+                    }
+                }
+                for (i = resp.length - 1; i >= 0; i--) {
+                    if (resp[i].PostType == "review") {
+                        var rid = resp[i].PostId;
+                        $("#rimg").attr("href", "/Posts/post_view/" + rid);
+                        $("#rbd").attr("href", "/Posts/post_view/" + rid)
+                        var rn = resp[i].PostTitle;
+                        var rc = resp[i].PostContent;
+                        var ris = resp[i].PostImage;
+                        rc = rc.replace(/\n/g, "<br/>");
+                        rc = rc.substr(0, 500);
+                        rc = rc + "...";
+                        $("#review_name").html(rn);
+                        $("#review_img_source").attr("src", ris);
+                        $("#review_content").html(rc);
+                        break;
+                    }
+
+                }
+            },
+            error: function (resp) {
+                alert("Error");
+            }
+        });
+    });
+</script>
+<!-- NEWS  -->
+<h1 class="page-header" style="margin-right: 150px;margin-left: 80px;">
+    <a href="/posts?type=news">NEWS</a>
+</h1>
+
+<!-- First Blog Post -->
+<!-- <div class="row"> -->
+<div class="well well-lg">
+    <div class="row">
+        <div class="col-md-3">
+            <a id="nimg" href="">
+                <img id="img_source" class="img-responsive img-rounded" src="" alt="img_not found">
+            </a>
+        </div>
+        <!-- /.col-md-8 -->
+        <div class="col-md-9">
+            <a id="nbd" href="" style="color:black; text-decoration:none;">
+                <h3 id="news_name"></h3>
+                <p id="news_content"></p>
+            </a><!-- <a class="btn btn-primary btn-sm" href="#">Call to Action!</a> -->
+        </div>
+
+        <!-- Rating anc views -->
+    </div>
+</div>
+
+<!-- REVIEW  -->
+<h1 class="page-header" style="margin-right: 150px;margin-left: 80px;">
+    <a href="/posts?type=review">Reviews</a>
+</h1>
+
+<!-- First Blog Post -->
+<!-- <div class="row"> -->
+<div class="well well-lg">
+    <div class="row">
+        <div class="col-md-3">
+            <a id="rimg" href="">
+                <img id="review_img_source" class="img-responsive img-rounded" src="" alt="img_not found">
+            </a>
+        </div>
+        <!-- /.col-md-8 -->
+        <div class="col-md-9">
+            <a id="rbd" href="" style="color:black; text-decoration:none;">
+                <h3 id="review_name"></h3>
+                <p id="review_content"></p>
+            </a><!-- <a class="btn btn-primary btn-sm" href="#">Call to Action!</a> -->
+        </div>
+
+        <!-- Rating anc views -->
+    </div>
+</div>

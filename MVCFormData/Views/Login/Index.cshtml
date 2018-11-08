@@ -1,0 +1,44 @@
+﻿@model MVCFormData.Models.User
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+<h2>Login</h2>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="login-panel panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Please Sign In</h3>
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" });
+                    <fieldset>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "Username" })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                            <span>
+                                @Html.PasswordFor(m => m.UserPassword, new { @class = "form-control", placeholder = "Password" })
+                            @Html.ValidationMessageFor(model => model.UserPassword, "", new { @class = "text-danger" })
+                        </span>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBox("remember_me")Remember Me
+                        </label>
+                    </div>
+                    <input type="submit" class="btn btn-lg btn-success btn-block" value="Login">
+                    <b id="php_info"><?php if(isset($_GET['attempt'])){ echo "Username and password not matching";}?></b>
+                    <b id="javascript_info"></b>
+                </fieldset>
+                }
+            </div>
+        </div>
+    </div>
+</div>      

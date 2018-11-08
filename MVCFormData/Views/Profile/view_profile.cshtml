@@ -1,0 +1,120 @@
+﻿@model MVCFormData.Models.User
+
+@{
+    ViewBag.Title = "view_profile";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+<script>
+    var checkpoint=0;
+    $(document).ready(function () {
+        $.ajax({
+            url: "/posts/get_post",
+            dataType: 'json',
+            success: function (resp) {
+                for (j = 1; j <= 10; j++) {
+                    for (i = checkpoint; i < resp.length; i++) {
+                        if (resp[i].UserId == '@ViewBag.id') {
+	                        var id = resp[i].PostId;
+	                        var nn = resp[i].PostTitle;
+	                        var t = resp[i].PostType;
+	                        var pd = resp[i].PostDate;
+	                        document.getElementById("post_name" + j).innerHTML = nn + "<br>";
+	                        document.getElementById("post_date" + j).innerHTML = " <b>Posted on:</b> " + pd;
+	                        document.getElementById("post_type" + j).innerHTML = "<b>Post type:</b> " + t;
+	                        document.getElementById("link" + j).href = "/posts/post_view/" + id;
+	                        checkpoint = i + 1;
+	                        break;
+	                    }
+	                }
+	            }
+	        },
+	        error: function (resp) {
+	            alert("Error");
+	        }
+	    });
+	});
+
+    $(document).ready(function () {
+        $.ajax({
+            url: "/profile/get_user",
+            dataType: 'json',
+            success: function (resp) {
+                for (i = 0; i < resp.length; i++) {
+			    if (resp[i].UserId == '@ViewBag.id') {
+			        //alert('gg');
+					var id=resp[i].UserId;
+					var nm=resp[i].UserName;
+					var t=resp[i].UserType;
+					var em=resp[i].UserEmail;
+					var pp=resp[i].UserProfilePicture;
+					document.getElementById("id").innerHTML ="ID: "+id;
+					document.getElementById("name").innerHTML ="Name: "+nm;
+					document.getElementById("email").innerHTML ="Email: "+em;
+					document.getElementById("user_type").innerHTML ="User Type: "+t;
+					document.getElementById("profile_picture").src =pp;
+					break;
+				}
+			}
+		},
+            error: function (resp) {
+            alert("Error");
+            }
+        });
+    });
+
+</script>
+<div class="well well-lg">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="login-panel panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">User information</h3>
+                </div>
+                <div class="panel-body">
+                    <form id="signup_form" role="form">
+                        <fieldset>
+                            <div class="form-group">
+                                <span id="id"></span><br>
+                            </div>
+                            <div class="form-group">
+                                <span id="name"></span><br>
+                            </div>
+                            <div class="form-group">
+                                <span id="email"></span><br>
+                            </div>
+                            <div class="form-group">
+                                <span id="user_type"></span><br>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="login-panel panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Posts made by the user</h3>
+                </div>
+                <div class="panel-body">
+                    <form id="signup_form" role="form">
+                        <fieldset>
+                            <div class="form-group">
+                                <a id="link1"><span id="post_name1"></span></a><span id="post_type1"></span><span id="post_date1"></span><br>
+                            </div>
+                            <div class="form-group">
+                                <a id="link2"><span id="post_name2"></span></a><span id="post_type2"></span><span id="post_date2"></span><br>
+                            </div>
+                            <div class="form-group">
+                                <a id="link3"><span id="post_name3"></span></a><span id="post_type3"></span><span id="post_date3"></span><br>
+                            </div>
+                            <div class="form-group">
+                                <a id="link4"><span id="post_name4"></span></a><span id="post_type4"></span><span id="post_date4"></span><br>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <img id="profile_picture" src="" class="img-circle" alt=" profile picture" style="margin-left:60px" width="320" height="300">
+    </div>
+</div>

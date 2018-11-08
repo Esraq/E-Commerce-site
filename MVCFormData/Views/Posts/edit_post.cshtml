@@ -1,0 +1,98 @@
+﻿@model MVCFormData.Models.Post
+
+@{
+    ViewBag.Title = "edit_post";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+<script>
+    var post_id=@ViewBag.id;
+    $(document).ready(function () {
+        $.ajax({
+            url: "/posts/get_post",
+            dataType: 'json',
+            success: function (resp) {
+                for (i = 0; i < resp.length; i++) {
+                    if (resp[i].PostId == post_id) {
+                        var nn = resp[i].PostTitle;
+                        var t = resp[i].PostType;
+                        var pb = resp[i].PostContent;
+                        var np = resp[i].PostImage;
+                        var tt;
+                        if (t == 'news') {
+                            tt = "News";
+                        }
+                        else {
+                            tt = "Review";
+                        }
+                        //document.getelementbyid("post_name").value = nn;
+                        $('#post_name').val(nn); 
+                        $('#radio_news').val(t); 
+                        $('#post_type_text').html(tt); 
+                        $('#post_body').html(pb); 
+                        $('#add_post').attr("action","/posts/edit_post?id=" + post_id + "&previous_news_picture=" + np); 
+                        break;
+                    }
+                }
+            },
+            error: function (resp) {
+                alert("Error");
+            }
+        });
+    });
+    function post_func(elm) {
+        a = document.getElementById("post_name").value;
+        b = document.getElementById("post_picture").value;
+        c = document.getElementById("post_body").value;
+        var flag1 = 0;
+        var flag3 = 0;
+        if (a.length > 0) {
+            flag1 = 1;
+        }
+        if (c.length > 0) {
+            flag3 = 1;
+        }
+        if (elm.getAttribute("type") == "button" && flag1 == 1 && flag3 == 1) {
+            document.getElementById("add_post").submit();
+        }
+        else if (elm.getAttribute("type") == "button") {
+            document.getElementById("add_post_info").innerHTML = "Please check for empty input fields";
+        }
+
+    }
+
+</script>
+<title>Add Review</title>
+<h1 class="page-header" style="text-align:center"><small id="post_heading"></small></h1>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="login-panel panel panel-default">
+            <div class="panel-body">
+                @ViewBag.Error
+                @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", id = "add_post", role = "form" }))
+                {
+
+                    <fieldset>
+                        <div class="form-group">
+                            Post Type: <b id="post_type_text"></b>
+                            @Html.RadioButtonFor(m => m.PostType, "", new { @checked = true, id = "radio_news" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.PostTitle, new { @class = "form-control", placeholder = "Give a Title", id = "post_name", autofocus = true })
+                            <span id="title_text"></span>
+                        </div>
+                        <div class="form-group">
+                            <b>Change picture</b>
+                            <input id="post_picture" class="form-control" name="fileToUpload" type="file" value="">
+                        </div>
+                        <div class="form-group">
+                            @Html.TextAreaFor(m => m.PostContent, new { @class = "form-control", rows = 10, style = "resize: none;", placeholder = "Write the body...", id = "post_body" })
+                        </div>
+                        <!-- Change this to a button or input when using this as a form -->
+                        <input type="button" onclick="post_func(this)" class="btn btn-lg btn-primary btn-block" value="Submit Post">
+                        <b id="add_post_info">*Note: if you don't want to change the picture leave it blank</b>
+                    </fieldset>
+                }
+            </div>
+        </div>
+    </div>
+</div>

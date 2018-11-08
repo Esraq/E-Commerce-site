@@ -1,0 +1,136 @@
+﻿@model MVCFormData.Models.User
+
+@{
+    ViewBag.Title = "Signup";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<h2>Index @ViewBag.login_type f</h2>
+<script>
+    function showHint(elm) {
+        a = document.getElementById("input_username").value;
+        b = document.getElementById("input_email").value;
+        c = document.getElementById("input_password").value;
+        d = document.getElementById("input_rePassword").value;
+        //a=document.getElementById("nme").value;
+        //a=document.forms[0].elements[0].value;
+        //pass=document.forms[0].elements[1].value;
+        msg1 = document.getElementById("hint_username");
+        msg2 = document.getElementById("hint_email");
+        msg3 = document.getElementById("hint_password");
+        msg4 = document.getElementById("hint_rePassword");
+        //alert(a);
+        var flag1 = 0;
+        var flag2 = 0;
+        var flag3 = 0;
+        var flag4 = 0;
+        if (elm.getAttribute("id") == "input_username" || elm.getAttribute("type") == "button") {
+            if (a.length < 3) {
+                msg1.innerHTML = "invalid name";
+                msg1.style.color = "red";
+            }
+            else {
+                msg1.innerHTML = "name is ok";
+                msg1.style.color = "green";
+                flag1 = 1;
+            }
+        }
+        if (elm.getAttribute("id") == "input_password" || elm.getAttribute("type") == "button") {
+            if (c.length < 3) {
+                msg3.innerHTML = "Inalid password";
+                msg3.style.color = "red";
+            }
+            else {
+                msg3.innerHTML = "password is ok";
+                msg3.style.color = "green";
+                flag3 = 1;
+            }
+        }
+        if (elm.getAttribute("id") == "input_rePassword" || elm.getAttribute("type") == "button" || elm.getAttribute("id") == "input_password") {
+            if (d !== c) {
+                msg4.innerHTML = "passwords not matching";
+                msg4.style.color = "red";
+            }
+            else if (d.length < 3) {
+                msg4.innerHTML = "invalid password";
+                msg4.style.color = "red";
+            }
+            else {
+                msg4.innerHTML = "passwords matching";
+                msg4.style.color = "green";
+                flag4 = 1;
+            }
+        }
+        if (elm.getAttribute("id") == "input_email" || elm.getAttribute("type") == "button") {
+            if (b.indexOf("@@") > 0 && b.indexOf(".com") > b.indexOf("@@")) {
+                msg2.innerHTML = "valid email";
+                msg2.style.color = "green";
+                flag2 = 1;
+            }
+            else {
+                msg2.innerHTML = "invalid email";
+                msg2.style.color = "red";
+            }
+        }
+        /*	if(e.indexOf("01")==0 && e.length==11){
+                msg5.innerHTML="valid phone number";
+                msg5.style.color="green";
+                flag5=1;
+            }
+            else{
+                msg5.innerHTML="invalid number";
+                msg5.style.color="red";
+            }
+        */
+        if (elm.getAttribute("type") == "button" && flag1 == 1 && flag2 == 1 && flag3 == 1 && flag4 == 1) {
+            document.getElementById("signup_form").submit();
+        }
+        else if (elm.getAttribute("type") == "button") {
+            document.getElementById("signup_info").innerHTML = "Check For Invalid Credentials";
+        }
+
+    }
+</script>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="login-panel panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Create a new account</h3>
+            </div>
+            <div class="panel-body">
+
+                @if (ViewBag.Message != null)
+                {
+                    <div style="border: solid 1px green">
+                        @ViewBag.Message
+                    </div>
+                }
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <fieldset>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "Username" })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.UserEmail, new { @class = "form-control", placeholder = "Email" })
+                            @Html.ValidationMessageFor(model => model.UserEmail, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.PasswordFor(m => m.UserPassword, new { @class = "form-control", placeholder = "Password" })
+                            @Html.ValidationMessageFor(model => model.UserPassword, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Re-Type PAssword" })
+                            @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+                        </div>
+                        <!-- Change this to a button or input when using this as a form -->
+                        <input type="submit" value="Signup" class="btn btn-lg btn-success">
+                        <b id="signup_info"></b>
+                    </fieldset>
+                }
+            </div>
+        </div>
+    </div>
+</div>

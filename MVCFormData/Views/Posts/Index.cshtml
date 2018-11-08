@@ -1,0 +1,111 @@
+﻿@model MVCFormData.Models.Post
+
+@{
+    ViewBag.Title = "News";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        var user_type;
+        var type = "@ViewBag.type";
+        //var savei;
+        @if (Session["login_type"]!=null){
+	        @:user_type = "@Session["user_type"]";
+                                }
+	    else if(Request.Cookies["user_info"] != null)
+	    {
+	        @:user_type = "@Request.Cookies["user_info"]["user_type"]";
+                }
+        if (type == "news") {
+            document.getElementById("post_link").innerHTML = 'NEWS';
+        }
+        else if (type == "review") {
+            document.getElementById("post_link").innerHTML = 'REVIEWS';
+        }
+        $.ajax({
+            url: "/Posts/get_post",
+            dataType: 'json',
+            success: function (resp) {
+                var revChkPoint = resp.length - 1;
+                for (j = 1; j <= 4; j++) {
+                    for (i = revChkPoint; i >= 0; i--) {
+                        if (type == "news") {
+                            if (resp[i].PostType == "news") {
+                                var nid = resp[i].PostId;
+                                document.getElementById("post_img_link_" + j).href = "Posts/post_view/" + nid;
+                                document.getElementById("post_body_link_" + j).href = "Posts/post_view/" + nid;
+                                var nn = resp[i].PostTitle;
+                                var nc = resp[i].PostContent;
+                                var is = resp[i].PostImage;
+                                nc = nc.replace(/\n/g, "<br/>");
+                                nc = nc.substr(0, 500);
+                                nc = nc + "...";
+                                document.getElementById("post_name_" + j).innerHTML = nn;
+                                document.getElementById("img_source_" + j).src = is;
+                                document.getElementById("post_body_" + j).innerHTML = nc;
+                                document.getElementById("div_" + j).style.display = "";
+                                if (user_type == 'admin') {
+                                    document.getElementById("post_a").innerHTML = "Post a News";
+                                }
+                                revChkPoint = i - 1;
+                                break;
+                            }
+                        }
+                        else if (type == "review") {
+                            if (resp[i].PostType == "review") {
+                                var nid = resp[i].PostId;
+                                document.getElementById("post_img_link_" + j).href = "Posts/post_view/" + nid;
+                                document.getElementById("post_body_link_" + j).href = "Posts/post_view/" + nid;
+                                var nn = resp[i].PostTitle;
+                                var nc = resp[i].PostContent;
+                                var is = resp[i].PostImage;
+                                nc = nc.replace(/\n/g, "<br/>");
+                                nc = nc.substr(0, 500);
+                                nc = nc + "...";
+                                document.getElementById("post_name_" + j).innerHTML = nn;
+                                document.getElementById("img_source_" + j).src = is;
+                                document.getElementById("post_body_" + j).innerHTML = nc;
+                                document.getElementById("div_" + j).style.display = "";
+                                if (user_type == 'admin' || user_type == 'user') {
+                                    document.getElementById("post_a").innerHTML = "Post a Review";
+                                }
+                                revChkPoint = i - 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            },
+            error: function (resp) {
+                alert("Error");
+            }
+        });
+    });
+</script>
+
+<title id="post_title"><?php echo $_GET['type'];?></title>
+<h1 class="page-header">
+    <a id="post_link" href="/posts?type=@ViewBag.type"></a>
+    <small class="pull-right" id="add_post_link"><a id="post_a" href="/posts/add_post"></a></small>
+</h1>
+@for (var i = 1; i <= 4; i++)
+{
+    <div id="div_@i" style="display:none" class="well well-lg">
+        <div class="row">
+            <div class="col-md-3">
+                <a id="post_img_link_@i" href="">
+                    <img id="img_source_@i" class="img-responsive img-rounded" style="height: 150px;" src="" alt="img_not_found">
+                </a>
+            </div>
+            <!-- /.col-md-8 -->
+            <div class="col-md-9">
+                <a id="post_body_link_@i" href="post_view.php" style="color:black; text-decoration:none;">
+                    <h3 id="post_name_@i"></h3>
+                    <p id="post_body_@i"></p>
+                </a> <!-- <a class="btn btn-primary btn-sm" href="#">Call to Action!</a> -->
+            </div>
+            <!-- Rating anc views -->
+        </div>
+    </div>
+}

@@ -1,0 +1,225 @@
+﻿@model MVCFormData.Models.Comment
+
+@{
+    ViewBag.Title = "post_view";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<style>
+    p {
+        margin-top: 50px;
+        margin-bottom: 50px;
+        margin-right: 50px;
+        margin-left: 50px;
+    }
+</style>
+<script>
+    var if_logged_in=0;
+    var user_type=0;
+    var current_user_name=0;
+    var post_id=@ViewBag.id;
+    @if (Session["login_type"]!=null){
+        @:user_type = "@Session["user_type"]";
+                @:current_user_name="@Session["user_name"]";
+                @:if_logged_in="@Session["login_type"]";
+            }
+    else if(Request.Cookies["user_info"] != null)
+    {
+         @:user_type = "@Request.Cookies["user_info"]["user_type"]";
+             @:current_user_name="@Request.Cookies["user_info"]["user_name"]";
+             @:if_logged_in="@Request.Cookies["user_info"]["login_type"]";
+        }
+    $(document).ready(function () {
+        $.ajax({
+            url: "/posts/get_post",
+            dataType: 'json',
+            success: function (resp) {
+                for(i=0;i<resp.length;i++){
+                    if(resp[i].PostId==post_id){
+                        var nn=resp[i].PostTitle;
+                        var t=resp[i].PostType;
+                        var na=resp[i].UserName;
+                        var user_id=resp[i].UserId;
+                        var nc=resp[i].PostContent;
+                        var is=resp[i].PostImage;
+                        var pd=resp[i].PostDate;
+                        nc=nc.replace(/\n/g,"<br/>");
+                        document.getElementById("news_title").innerHTML =nn;
+                        document.getElementById("news_name").innerHTML =nn;
+                        document.getElementById("news_author").innerHTML =na;
+                        document.getElementById("post_date").innerHTML ="Posted on "+pd;
+                        document.getElementById("news_content").innerHTML =nc;
+                        document.getElementById("img_source").src =is;
+                        if(na==current_user_name){
+                            document.getElementById("delete_post").href="/posts/delete_post/"+post_id;
+                            document.getElementById("edit_post").href="/posts/edit_post/"+post_id;
+                            document.getElementById("news_author").href ="/profile";
+                        }
+                        else{
+                            document.getElementById("edit_post").style.display="none";
+                            document.getElementById("delete_post").style.display="none";
+                            document.getElementById("news_author").href ="/profile/view_profile/"+user_id;
+                        }
+                        if(t=='news'&&user_type=='admin'){
+                            document.getElementById("post_a").innerHTML ="Post a News";
+                        }
+                        else if(t=='review'&&(user_type=='admin'||user_type=='user')){
+                            document.getElementById("post_a").innerHTML ="Post a Review";
+                        }
+                        else{
+                            document.getElementById("add_post_link").style.display="none";
+                            //document.getElementById("add_post_line").style.display="none";
+                        }
+                        break;
+                    }
+                }
+
+            },
+            error: function (resp) {
+                alert("Error");
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $.ajax({
+            url: "/posts/get_comments",
+            dataType: 'json',
+            success: function (resp) {
+                var checkpoint=resp.length;
+                for(j=1;j<=10;j++){
+                    for(i=checkpoint-1;i>=0;i--){
+                        if(resp[i].PostId==post_id){
+                            var cid=resp[i].CommentId;
+                            var uid=resp[i].UserId;
+                            var commenter_name=resp[i].UserName;
+                            var dt=resp[i].CommentDate;
+                            var pp=resp[i].UserProfilePicture;
+                            var cb=resp[i].CommentContent;
+                            document.getElementById("comment_image_"+j).src =pp;
+                           // $("#comment_image"+j).attr("src", pp);
+                            document.getElementById("comment_name_"+j).innerHTML =commenter_name;
+                            document.getElementById("comment_date_"+j).innerHTML =dt;
+                            sa=cb.substr(0,149);
+                            sb=cb.substr(150,199);
+                            document.getElementById("comment_body_"+j).innerHTML =cb;
+                            document.getElementById("comment_image_"+j).width ="64";
+                           //$("#comment_image"+j).attr("width", 64);
+                            document.getElementById("comment_image_"+j).height ="64";
+                          //  $("#comment_image"+j).attr("height", 64);
+                            if(current_user_name==commenter_name){
+                                document.getElementById("edit_post_"+j).href="";
+                                document.getElementById("delete_comment_"+j).href="/Posts/delete_comment?delete_id="+cid+"&post_id="+post_id;
+                                //document.getElementById("edit_post_"+j).style.display="";
+                                document.getElementById("delete_comment_"+j).style.display="";
+                                document.getElementById("comment_picture_link_"+j).href ="/profile";
+                                document.getElementById("comment_name_link_"+j).href ="/profile";
+                            }
+                            else{
+                                document.getElementById("comment_name_link_"+j).href ="/profile/view_profile/"+uid;
+                                document.getElementById("comment_picture_link_"+j).href ="/profile/view_profile/"+uid;
+                            }
+                            checkpoint=i;
+                            break;
+                        }
+                    }
+                }
+            },
+            error: function (resp) {
+                alert("Error");
+            }
+        });
+    });
+
+    function post_comment(elm){
+        a=document.getElementById("CommentContent").value;
+        var flag1=0;
+        if(if_logged_in==0){
+            document.getElementById("comment_check").innerHTML="Before commenting, please ";
+            document.getElementById("please_login").href="/login"
+            document.getElementById("please_login").innerHTML="Login"
+        }
+        else{
+            if(a.length>0){
+                flag1=1;
+            }
+            if(elm.getAttribute("type")=="button"&&flag1==1){
+                //document.getElementById("comment_form").action="comment_action.php?news_id="+post_id;
+                document.getElementById("comment_form").submit();
+            }
+            else if(elm.getAttribute("type")=="button"){
+                document.getElementById("comment_check").innerHTML="Can't post empty comment";
+            }
+        }
+    }
+    function edit_comment(elm){
+        alert(document.getElementById("comment_body2").getAttribute('data-comment_id'));
+    }
+
+</script>
+<title id="news_title"></title>
+<!-- second post -->
+<div class="col-md-12">
+    <h1 class="page-header">
+        <small class="pull-right" id="add_post_link"><a id="post_a" href="/posts/add_post"></a></small>
+        <span id="news_name"></span>
+        <small>by <a id="news_author" href=""></a></small>
+    </h1>
+
+    <!-- <ol class="breadcrumb">
+        <li><a href="index.html">Home</a>
+        </li>
+        <li class="active">Blog Post</li>
+    </ol> -->
+
+    <div class="pull-right">
+        <a id="edit_post" href="" class="btn btn-primary">Edit Post</a>
+        <a id="delete_post" href="" class="btn btn-danger">Delete Post</a>
+    </div>
+    <!-- Date/Time -->
+    <i id="post_date" class="fa fa-clock-o"></i>
+    <hr>
+    <!-- Preview Image -->
+    <img id="img_source" class="img-responsive" style="margin-left:8cm;" src="" alt="photo not found" width=700 height=600/>
+
+    <hr>
+    <!-- Post Content -->
+    <p id="news_content"> </p>
+    <hr>
+    <!-- Comments Form -->
+    <div class="well">
+        <h4>Leave a Comment:</h4>
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "comment_form", role = "form" }))
+        {
+            <div class="form-group">
+                @Html.TextAreaFor(m => m.CommentContent, new { @class = "form-control", rows = 3, style = "resize: none;" })
+            </div>
+            <input type="button" class="btn btn-primary" value="Post Comment" onclick="post_comment(this)">
+            <b id="comment_check">   </b><a id="please_login"></a>
+        }
+    </div>
+
+    <hr>
+    <!-- Posted Comments -->
+    <!-- Comment -->
+    @for (var i = 1; i <= 5; i++)
+    {
+        <div class="media" id="comments">
+            <a class="pull-left" href="" id="comment_picture_link_@i">
+                <img id="comment_image_@i" class="media-object" src="" width="0" height="0" alt="">
+            </a>
+            <div class="pull-right">
+                <a id="edit_post_@i" onclick="edit_comment(this)" class="btn btn-primary btn-sm" style="display:none">Edit Post</a>
+                <a id="delete_comment_@i" href="" class="btn btn-danger btn-sm" style="display:none">Delete Comment</a>
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading">
+                    <a id="comment_name_link_@i" href=""><span id="comment_name_@i"></span></a>
+                    <small id="comment_date_@i"></small>
+                </h4>
+            </div>
+
+        </div>
+        <span data-comment_id="" style="word-break: break-all; resize: none;cursor:default;height:auto;" id="comment_body_@i"></span>
+    }
+</div>

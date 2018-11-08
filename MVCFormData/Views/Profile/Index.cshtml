@@ -1,0 +1,280 @@
+﻿@model MVCFormData.Models.User
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+<script>
+function showHint(elm){
+	a=document.getElementById("input_username").value;
+	b=document.getElementById("input_email").value;
+	c=document.getElementById("input_password").value;
+	d=document.getElementById("input_rePassword").value;
+	msg1=document.getElementById("hint_username");
+	msg2=document.getElementById("hint_email");
+	msg3=document.getElementById("hint_password");
+	msg4=document.getElementById("hint_rePassword");
+	var flag1=0;
+	var flag2=0;
+	var flag3=0;
+	var flag4=0;
+	if(elm.getAttribute("id")=="input_username" || elm.getAttribute("type")=="button"){
+		if(a.length==0){
+			msg1.innerHTML="name unchanged";
+			msg1.style.color="green";
+			flag1=1;
+		}
+		else if(a.length<3){
+			msg1.innerHTML="invalid name";
+			msg1.style.color="red";
+		}
+		else{
+			msg1.innerHTML="name is ok";
+			msg1.style.color="green";
+			flag1=1;
+		}
+	}
+	if(elm.getAttribute("id")=="input_password" || elm.getAttribute("type")=="button" || elm.getAttribute("id")=="input_rePassword"){
+		if(c.length==0){
+			msg3.innerHTML="password unchanged";
+			msg3.style.color="green";
+			flag3=1;
+		}
+		else if(c.length<3){
+			msg3.innerHTML="Inalid password";
+			msg3.style.color="red";
+		}
+		else{
+			msg3.innerHTML="password is ok";
+			msg3.style.color="green";
+			flag3=1;
+		}
+	}
+	if(elm.getAttribute("id")=="input_rePassword" || elm.getAttribute("type")=="button" || elm.getAttribute("id")=="input_password"){
+		if(d.length==0&&d==c){
+			msg4.innerHTML="password unchanged";
+			msg4.style.color="green";
+			flag4=1;
+		}
+		else if(d!=c)
+		{
+			msg4.innerHTML="passwords not matching";
+			msg4.style.color="red";
+		}
+		else if(d.length<3){
+			msg4.innerHTML="invalid password";
+			msg4.style.color="red";
+		}
+		else{
+			msg4.innerHTML="passwords matching";
+			msg4.style.color="green";
+			flag4=1;
+		}
+	}
+	if(elm.getAttribute("id")=="input_email" || elm.getAttribute("type")=="button")
+	{
+		if(b.indexOf("@@")>0 && b.indexOf(".com")>b.indexOf("@@")){
+			msg2.innerHTML="valid email";
+			msg2.style.color="green";
+			flag2=1;
+		}
+		else if(b.length==0)
+		{
+			msg2.innerHTML="email unchanged";
+			msg2.style.color="green";
+			flag2=1;
+
+		}
+		else
+		{
+			msg2.innerHTML="invalid email";
+			msg2.style.color="red";
+		}
+	}
+
+	if(msg1.innerHTML=="name unchanged"&&msg3.innerHTML=="password unchanged"&&msg4.innerHTML=="password unchanged"&&msg2.innerHTML=="email unchanged"&&elm.getAttribute("type")=="button"){
+		document.getElementById("result").innerHTML="Nothing have been edited";
+	}
+	else if(elm.getAttribute("type")=="button"&&flag1==1&&flag2==1&&flag3==1&&flag4==1){
+		document.getElementById("edit_form").submit();
+	}
+	else if(elm.getAttribute("type")=="button"){
+		alert('Check for invalid input');
+	}
+
+}
+var source='@ViewBag.source';
+function func(){
+	if(source==1){
+		document.getElementById("result").innerHTML="Server side varification complete<br>Edited Successfully";
+	}
+	else if(source==2){
+		document.getElementById("result_image").innerHTML="Profile Picture Uploaded Successfully";
+	}
+	else if(source==3){
+		document.getElementById("result_image").innerHTML="File Upload FAILED";
+	}
+}
+function upload_image(elm){
+	img_flag=1;
+	if(document.getElementById("file").value=="")
+	{
+		img_flag=0;
+	}
+	if(elm.getAttribute("type")=="button"&&img_flag==1)
+	{
+		document.getElementById("upload_action").submit();
+	}
+	else{
+		document.getElementById("result_image").innerHTML="No file Selected";
+	}
+}
+    var name;
+    var checkpoint = 0;
+    $(document).ready(function () {
+        $.ajax({
+            url: "/posts/get_post",
+            dataType: 'json',
+            success: function (resp) {
+                    for (j = 1; j <= 10; j++) {
+                        for (i = checkpoint; i < resp.length; i++) {
+                            if (resp[i].UserName == '@ViewBag.name') {
+                               // alert("gg");
+                                var id = resp[i].PostId;
+                                var nn = resp[i].PostTitle;
+                                var t = resp[i].PostType;
+                                var pd = resp[i].PostDate;
+                                document.getElementById("post_name" + j).innerHTML = nn + "<br>";
+                                document.getElementById("post_date" + j).innerHTML = " <b>Posted on:</b> " + pd;
+                                document.getElementById("post_type" + j).innerHTML = "<b>Post type:</b> " + t;
+                                document.getElementById("link" + j).href = "/posts/post_view/" + id;
+                                checkpoint = i + 1;
+                                break;
+                            }
+                        }
+                    }
+            if (checkpoint == 0) {
+                    document.getElementById("post_date1").innerHTML = "<b>No posts made by you yet</b>";
+                }
+            },
+            error: function (resp) {
+                alert("Error");
+            }
+        });
+    });
+    function edit_js() {
+        document.getElementById("edit_js_show").style.display = "";
+        document.getElementById("edit_profile_picture").style.display = "";
+    }
+    $(document).ready(function () {
+        document.getElementById("profile_picture").src = '@ViewBag.profile_picture';
+    });
+</script>
+<div class="well well-lg">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="login-panel panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">User information</h3>
+                </div>
+                <div class="panel-body">
+                    <form id="signup_form" role="form">
+                        <fieldset>
+                            <div class="form-group">
+                                <span>ID @ViewBag.user_id</span><br>
+                            </div>
+                            <div class="form-group">
+                                <span>Name: @ViewBag.name</span><br>
+                            </div>
+                            <div class="form-group">
+                                <span>email: @ViewBag.email</span><br>
+                            </div>
+                            <div class="form-group">
+                                <span>User Type: @ViewBag.user_type</span><br>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+            <fieldset>
+                Posts made by you:
+                <div class="form-group">
+                    <a id="link1"><span id="post_name1"></span></a><span id="post_type1"></span><span id="post_date1"></span><br>
+                </div>
+                <div class="form-group">
+                    <a id="link2"><span id="post_name2"></span></a><span id="post_type2"></span><span id="post_date2"></span><br>
+                </div>
+                <div class="form-group">
+                    <a id="link3"><span id="post_name3"></span></a><span id="post_type3"></span><span id="post_date3"></span><br>
+                </div>
+                <div class="form-group">
+                    <a id="link4"><span id="post_name4"></span></a><span id="post_type4"></span><span id="post_date4"></span><br>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-info btn-block" onclick="edit_js()">Edit Credentials</button>
+            <div id="edit_js_show" class="login-panel panel panel-default" style="display:none">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Enter new edited information*</h3>
+                </div>
+                <div class="panel-body">
+                @using (Html.BeginForm("edit_profile", "Profile", FormMethod.Post, new { id="edit_form", role="form" }))
+                    {
+                    <fieldset>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "Username",onblur="showHint(this)",id="input_username", onkeyup="showHint(this)"})<span style="color:blue" id="hint_username">name unchanged</span>
+                           
+                        </div>
+                        <div class="form-group">
+                           
+                            @Html.TextBoxFor(m => m.UserEmail, new { @class = "form-control", placeholder = "Email",id="input_email", onblur="showHint(this)", onkeyup="showHint(this)" })<span style="color:blue" id="hint_email">email unchanged</span>
+                        </div>
+                        <div class="form-group">
+                           
+                            @Html.PasswordFor(m => m.UserPassword, new { @class = "form-control", placeholder = "Password",id="input_password", onblur="showHint(this)", onkeyup="showHint(this)" })<span style="color:blue" id="hint_password">password unchanged</span>
+                         </div>
+                        <div class="form-group">
+                         
+                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Re-Type PAssword",id="input_rePassword", onfocus="showHint(this)", onkeyup="showHint(this)" })<span style="color:blue" id="hint_rePassword">password unchanged</span>
+                        </div>
+                        <!-- Change this to a button or input when using this as a form -->
+                        <div class="form-group">
+                            <input id="input_edit" type="button" value="Submit new Information" onclick="showHint(this)" class="btn btn-primary">
+                        </div>
+                        <div class="form-group">
+                            <p>*Note: Keep text field blank if you want to edit specific fields</p>
+                        </div>
+                        <div class="form-group">
+
+                        </div>
+                    </fieldset>
+                }
+            </div>
+    </div>
+            <b id="result"></b>
+        </div>
+        <img id="profile_picture" src="" class="img-circle" alt="profile picture not found" style="margin-left:60px" width="320" height="300">
+        <div class="col-md-4">
+            <div class="login-panel panel panel-default" id="edit_profile_picture" style="display:none">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Upload new pofile picture</h3>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("edit_profile_picture", "Profile", FormMethod.Post, new { enctype = "multipart/form-data", id="upload_action", role="form" }))
+                    { 
+                        <fieldset>
+                            <div class="form-group">
+                                <input class="form-control" name="fileToUpload" type="file" id="file" value="">
+                            </div>
+                            <div class="form-group">
+                                <input id="upload_button" type="button" onclick="upload_image(this)" value="Upload Image" class="btn btn-primary">
+                            </div>
+                        </fieldset>
+                    }
+                </div>
+            </div>
+            <b id="result_image"></b>
+        </div>
+    </div>
+</div>
